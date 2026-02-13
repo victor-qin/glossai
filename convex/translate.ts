@@ -16,6 +16,13 @@ export const translate = action({
 
     const providers = [
       {
+        name: "google",
+        fn: async (text: string) => {
+          const { translateWithGoogle } = await import("./providers/google");
+          return translateWithGoogle(text);
+        },
+      },
+      {
         name: "claude",
         fn: async (text: string) => {
           const { translateWithClaude } = await import("./providers/claude");
@@ -27,13 +34,6 @@ export const translate = action({
         fn: async (text: string) => {
           const { translateWithOpenAI } = await import("./providers/openai");
           return translateWithOpenAI(text);
-        },
-      },
-      {
-        name: "google",
-        fn: async (text: string) => {
-          const { translateWithGoogle } = await import("./providers/google");
-          return translateWithGoogle(text);
         },
       },
     ];

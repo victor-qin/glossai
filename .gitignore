@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+*.png
+test-report*.md
+flush-network*.txt
 
 # next.js
 /.next/

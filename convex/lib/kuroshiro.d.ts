@@ -1,4 +1,4 @@
-declare module "kuroshiro" {
+declare module "@sglkc/kuroshiro" {
   interface ConvertOptions {
     to: "hiragana" | "katakana" | "romaji";
     mode: "normal" | "spaced" | "okurigana" | "furigana";
@@ -12,7 +12,7 @@ declare module "kuroshiro" {
   export default Kuroshiro;
 }
 
-declare module "kuroshiro-analyzer-kuromoji" {
+declare module "@sglkc/kuroshiro-analyzer-kuromoji" {
   class KuromojiAnalyzer {
     constructor(options?: { dictPath?: string });
   }

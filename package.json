@@ -6,13 +6,14 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "kuroshiro": "node scripts/kuroshiro-server.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "convex": "^1.21.0",
-    "kuroshiro": "^1.2.0",
-    "kuroshiro-analyzer-kuromoji": "^1.1.0",
+    "@sglkc/kuroshiro": "^1.0.1",
+    "@sglkc/kuroshiro-analyzer-kuromoji": "^1.0.1",
     "next": "^15.2.0",
     "openai": "^4.77.0",
     "react": "^19.0.0",
