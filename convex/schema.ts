@@ -20,11 +20,11 @@ const segment = v.union(
 export default defineSchema({
   translations: defineTable({
     english_text: v.string(),
-    japanese_segments: v.array(segment),
-    full_hiragana: v.string(),
-    romaji: v.string(),
+    japanese_segments: v.optional(v.array(segment)),
+    full_hiragana: v.optional(v.string()),
+    romaji: v.optional(v.string()),
     notes: v.string(),
-    provider_used: v.string(),
+    provider_used: v.optional(v.string()),
     created_at: v.number(),
     updated_at: v.number(),
   })

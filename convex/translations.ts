@@ -36,8 +36,22 @@ export const get = query({
   },
 });
 
-export const create = mutation({
+export const createEmpty = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    return await ctx.db.insert("translations", {
+      english_text: "",
+      notes: "",
+      created_at: now,
+      updated_at: now,
+    });
+  },
+});
+
+export const update = mutation({
   args: {
+    id: v.id("translations"),
     english_text: v.string(),
     japanese_segments: v.array(
       v.union(
@@ -50,14 +64,8 @@ export const create = mutation({
     romaji: v.string(),
     provider_used: v.string(),
   },
-  handler: async (ctx, args) => {
-    const now = Date.now();
-    return await ctx.db.insert("translations", {
-      ...args,
-      notes: "",
-      created_at: now,
-      updated_at: now,
-    });
+  handler: async (ctx, { id, ...fields }) => {
+    await ctx.db.patch(id, { ...fields, updated_at: Date.now() });
   },
 });
 

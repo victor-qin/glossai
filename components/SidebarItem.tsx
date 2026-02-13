@@ -24,7 +24,9 @@ export function SidebarItem({
           : "text-text-muted hover:bg-surface-hover hover:text-text"
       }`}
     >
-      <span className="line-clamp-2">{englishText}</span>
+      <span className={`line-clamp-2 ${!englishText ? "italic text-text-muted" : ""}`}>
+        {englishText || "New translation"}
+      </span>
     </button>
   );
 }
