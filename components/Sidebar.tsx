@@ -15,7 +15,7 @@ interface SidebarProps {
 
 export function Sidebar({ selectedId, onSelect, onNew }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearch = useDebounce(searchQuery, 300);
+  const [debouncedSearch] = useDebounce(searchQuery, 300);
 
   // Always use the search query — it handles empty strings by listing all
   const translations = useQuery(api.translations.search, {

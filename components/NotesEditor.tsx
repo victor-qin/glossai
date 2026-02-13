@@ -12,7 +12,7 @@ interface NotesEditorProps {
 
 export function NotesEditor({ translationId }: NotesEditorProps) {
   const [notes, setNotes] = useState("");
-  const debouncedNotes = useDebounce(notes, 800);
+  const [debouncedNotes] = useDebounce(notes, 800);
   const updateNotes = useMutation(api.translations.updateNotes);
 
   const translation = useQuery(

@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Sidebar } from "@/components/Sidebar";
 import { EnglishInput } from "@/components/EnglishInput";
@@ -9,31 +11,34 @@ import { NotesEditor } from "@/components/NotesEditor";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Home() {
-  const { inputText, setInputText, isTranslating, error, lastTranslatedId } =
-    useTranslation();
-  const [selectedId, setSelectedId] = useState<Id<"translations"> | null>(
-    null
-  );
+  const [activeTranslationId, setActiveTranslationId] =
+    useState<Id<"translations"> | null>(null);
 
-  function handleNew() {
-    setSelectedId(null);
-    setInputText("");
+  const { inputText, setInputText, isTranslating, error } =
+    useTranslation(activeTranslationId);
+
+  const createEmptyMutation = useMutation(api.translations.createEmpty);
+  const lastCreatedRef = useRef(0);
+
+  async function handleNew() {
+    // Debounce rapid clicks with a 500ms cooldown
+    const now = Date.now();
+    if (now - lastCreatedRef.current < 500) return;
+    lastCreatedRef.current = now;
+    const id = await createEmptyMutation();
+    setActiveTranslationId(id);
   }
 
   function handleSelect(id: Id<"translations">) {
-    setSelectedId(id);
+    setActiveTranslationId(id);
   }
-
-  // When a new translation comes in from typing, auto-select it
-  const displayId =
-    selectedId !== null ? selectedId : lastTranslatedId;
 
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
       <div className="w-64 flex-shrink-0">
         <Sidebar
-          selectedId={displayId}
+          selectedId={activeTranslationId}
           onSelect={handleSelect}
           onNew={handleNew}
         />
@@ -46,16 +51,13 @@ export default function Home() {
           <div className="flex-1">
             <EnglishInput
               value={inputText}
-              onChange={(val) => {
-                setInputText(val);
-                // Clear sidebar selection when typing new text
-                setSelectedId(null);
-              }}
+              onChange={setInputText}
               isTranslating={isTranslating}
+              disabled={activeTranslationId === null}
             />
           </div>
           <div className="flex-1">
-            <JapaneseOutput translationId={displayId} />
+            <JapaneseOutput translationId={activeTranslationId} />
           </div>
         </div>
 
@@ -68,7 +70,7 @@ export default function Home() {
 
         {/* Bottom row: Notes */}
         <div className="h-40 flex-shrink-0">
-          <NotesEditor translationId={displayId} />
+          <NotesEditor translationId={activeTranslationId} />
         </div>
       </div>
     </div>
