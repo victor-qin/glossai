@@ -1,0 +1,11 @@
+services:
+  convex-backend:
+    image: ghcr.io/get-convex/convex-backend:latest
+    ports:
+      - "3210:3210"
+    volumes:
+      - convex-data:/convex/data
+    restart: unless-stopped
+
+volumes:
+  convex-data:

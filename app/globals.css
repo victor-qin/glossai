@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-japanese: "Noto Sans JP", sans-serif;
+
+  --color-bg: #0a0a0a;
+  --color-surface: #141414;
+  --color-surface-hover: #1a1a1a;
+  --color-border: #2a2a2a;
+  --color-text: #ededed;
+  --color-text-muted: #888888;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+}
+
+/* Ruby text (furigana) styling */
+ruby {
+  ruby-align: center;
+}
+
+ruby rt {
+  font-size: 0.5em;
+  font-family: var(--font-japanese);
+  color: var(--color-text-muted);
+}
+
+ruby rp {
+  display: none;
+}
+
+/* Japanese text base styling */
+.japanese-text {
+  font-family: var(--font-japanese);
+  font-size: 1.5rem;
+  line-height: 2.5;
+  letter-spacing: 0.02em;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
