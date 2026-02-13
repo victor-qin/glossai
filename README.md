@@ -1,100 +1,94 @@
 # GlossAI
 
-English-to-Japanese translation app with furigana annotations. Built with Next.js 15, Convex, and Tailwind CSS v4.
+English-to-Japanese translation app with furigana annotations. Built with Next.js 15, Convex (self-hosted), and Tailwind CSS v4.
 
 ## Prerequisites
 
 - Node.js 18+
-- An Anthropic API key (`ANTHROPIC_API_KEY`) — used by the Claude translation provider and as a fallback annotator for the Google provider
+- Docker
 
 ## Setup
 
-### Option A: Convex Cloud (recommended)
-
 1. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-2. **Start Convex dev**
-
-   ```bash
-   npx convex dev
-   ```
-
-   On first run this prompts you to create or link a Convex cloud project. Follow the prompts and leave the process running — it watches for schema and function changes and syncs them to the backend.
-
-3. **Set API keys**
-
-   In the [Convex dashboard](https://dashboard.convex.dev/) under your project's environment variables, add:
-
-   | Variable | Required | Description |
-   |---|---|---|
-   | `ANTHROPIC_API_KEY` | Yes | Used by the Claude provider and the Google+Claude annotation fallback |
-   | `OPENAI_API_KEY` | No | Only needed if you want the OpenAI translation provider |
-
-   Or from the CLI:
-
-   ```bash
-   npx convex env set ANTHROPIC_API_KEY sk-ant-...
-   ```
-
-   These are server-side secrets that run inside Convex actions and are never exposed to the browser.
-
-4. **Start the Next.js dev server**
-
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000).
-
-### Option B: Self-hosted Convex backend
-
-1. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-2. **Start the Convex backend container**
+2. **Start Convex backends (dev + prod)**
 
    ```bash
    docker compose -f docker/docker-compose.yml up -d
    ```
 
-   This runs the Convex backend on port `3210` with a persistent volume for data.
+   This starts two independent Convex instances with separate data volumes:
 
-3. **Create `.env.local`** from the example:
+   | Environment | Backend        | Dashboard              |
+   |-------------|----------------|------------------------|
+   | Dev         | localhost:3210 | http://localhost:6791   |
+   | Prod        | localhost:3220 | http://localhost:6792   |
+
+3. **Generate a dev admin key**
 
    ```bash
-   cp .env.local.example .env.local
+   docker compose -f docker/docker-compose.yml exec convex-dev ./generate_admin_key.sh
    ```
 
-   The defaults point at `http://localhost:3210`. Fill in the `CONVEX_SELF_HOSTED_ADMIN_KEY` printed in the container logs on first start.
-
-4. **Run Convex dev against the local backend**
+4. **Create `.env.local`**
 
    ```bash
+   cat > .env.local << EOF
+   NEXT_PUBLIC_CONVEX_URL=http://localhost:3210
+   CONVEX_SELF_HOSTED_URL=http://127.0.0.1:3210
+   CONVEX_SELF_HOSTED_ADMIN_KEY=<paste-dev-admin-key>
+   EOF
+   ```
+
+5. **Push schema and start dev servers**
+
+   ```bash
+   npx convex dev --once    # One-shot schema push
+   ```
+
+   Then in separate terminals:
+
+   ```bash
+   # Terminal 1 — Convex watcher
    npx convex dev
-   ```
 
-5. **Set API keys** via the CLI:
+   # Terminal 2 — Kuroshiro annotation server
+   npm run kuroshiro
 
-   ```bash
-   npx convex env set ANTHROPIC_API_KEY sk-ant-...
-   ```
-
-6. **Start the Next.js dev server**
-
-   ```bash
+   # Terminal 3 — Next.js frontend
    npm run dev
    ```
 
    Open [http://localhost:3000](http://localhost:3000).
 
-## Optional: Kuroshiro annotation server
+6. **Set API keys** (optional, for Claude/OpenAI providers):
+
+   ```bash
+   npx convex env set ANTHROPIC_API_KEY sk-ant-...
+   npx convex env set OPENAI_API_KEY sk-...
+   ```
+
+### Running production
+
+```bash
+# Generate prod admin key (first time only)
+docker compose -f docker/docker-compose.yml exec convex-prod ./generate_admin_key.sh
+
+# Create .env.production.local with prod URL + key, then deploy schema:
+npx convex deploy --env-file .env.production.local
+
+# Build and serve Next.js (uses .env.production.local → prod Convex on :3220)
+npm run build
+npm run start         # Serves on :3000
+```
+
+To run dev and prod Next.js simultaneously, use `--port` on one: `npm run start -- --port 3001`.
+
+## Kuroshiro annotation server
 
 The Google translation provider annotates Japanese text (furigana, romaji) using a fallback chain. The first option in that chain is a local Kuroshiro server:
 
@@ -109,38 +103,21 @@ This starts an HTTP server on port `9100` that wraps kuroshiro + kuromoji for fa
 | `KUROSHIRO_PORT` | `9100` | Port for the Kuroshiro server process |
 | `KUROSHIRO_URL` | `http://host.docker.internal:9100` | URL Convex actions use to reach Kuroshiro |
 
-Set `KUROSHIRO_URL` in your Convex environment if the server is reachable at a different address (e.g. `http://localhost:9100` when not using Docker).
-
-## Running all services
-
-In separate terminals:
-
-```bash
-# Terminal 1 — Convex backend (cloud or self-hosted)
-npx convex dev
-
-# Terminal 2 — Kuroshiro annotation server (optional)
-npm run kuroshiro
-
-# Terminal 3 — Next.js frontend
-npm run dev
-```
-
 ## Environment variables reference
 
-### Next.js (`.env.local`)
+### Next.js (`.env.local` / `.env.production.local`)
 
 | Variable | Description |
 |---|---|
-| `NEXT_PUBLIC_CONVEX_URL` | Convex backend URL (set automatically by `npx convex dev` for cloud; set manually for self-hosted) |
-| `CONVEX_SELF_HOSTED_URL` | Self-hosted backend URL (only for Option B) |
-| `CONVEX_SELF_HOSTED_ADMIN_KEY` | Admin key from self-hosted container logs (only for Option B) |
+| `NEXT_PUBLIC_CONVEX_URL` | Convex backend URL (set automatically by `npx convex dev`) |
+| `CONVEX_SELF_HOSTED_URL` | Self-hosted backend URL |
+| `CONVEX_SELF_HOSTED_ADMIN_KEY` | Admin key from `generate_admin_key.sh` |
 
 ### Convex server-side (set via dashboard or `npx convex env set`)
 
 | Variable | Required | Description |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Yes | Anthropic API key for Claude translation and annotation |
+| `ANTHROPIC_API_KEY` | No | Anthropic API key for Claude translation and annotation |
 | `OPENAI_API_KEY` | No | OpenAI API key for GPT-4o translation provider |
 | `KUROSHIRO_URL` | No | URL to the Kuroshiro server (default: `http://host.docker.internal:9100`) |
 | `OLLAMA_BASE_URL` | No | URL to an Ollama instance (default: `http://host.docker.internal:11434`) |
@@ -191,7 +168,7 @@ convex/               Convex backend
   lib/
     prompts.ts        Shared LLM prompts and JSON schemas
 docker/
-  docker-compose.yml  Self-hosted Convex backend
+  docker-compose.yml  Dev + prod Convex backends with dashboards
 hooks/
   useTranslation.ts   Translation state and debounced API calls
   useDebounce.ts      Generic debounce hook
