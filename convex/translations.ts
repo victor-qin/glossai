@@ -78,3 +78,10 @@ export const updateNotes = mutation({
     await ctx.db.patch(id, { notes, updated_at: Date.now() });
   },
 });
+
+export const remove = mutation({
+  args: { id: v.id("translations") },
+  handler: async (ctx, { id }) => {
+    await ctx.db.delete(id);
+  },
+});

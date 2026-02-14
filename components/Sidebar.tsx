@@ -11,9 +11,10 @@ interface SidebarProps {
   selectedId: Id<"translations"> | null;
   onSelect: (id: Id<"translations">) => void;
   onNew: () => void;
+  onDelete: (id: Id<"translations">) => void;
 }
 
-export function Sidebar({ selectedId, onSelect, onNew }: SidebarProps) {
+export function Sidebar({ selectedId, onSelect, onNew, onDelete }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebounce(searchQuery, 300);
 
@@ -55,6 +56,7 @@ export function Sidebar({ selectedId, onSelect, onNew }: SidebarProps) {
                 englishText={t.english_text}
                 isSelected={selectedId === t._id}
                 onSelect={onSelect}
+                onDelete={onDelete}
               />
             ))}
           </div>
