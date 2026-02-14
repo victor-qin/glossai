@@ -99,7 +99,7 @@ npm run dev                 # Terminal 3: Next.js dev server on :3000
 # ── Prod ──
 npx convex deploy --env-file .env.production.local   # Deploy schema + functions
 npm run build               # Build Next.js (uses .env.production.local → :3220)
-npm run start               # Serve production Next.js on :3000
+npm run start               # Serve production Next.js on :3030
 
 # ── Utilities ──
 npx convex dev --once       # One-shot push to dev (no watch)
