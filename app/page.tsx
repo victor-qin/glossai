@@ -18,6 +18,7 @@ export default function Home() {
     useTranslation(activeTranslationId);
 
   const createEmptyMutation = useMutation(api.translations.createEmpty);
+  const removeMutation = useMutation(api.translations.remove);
   const lastCreatedRef = useRef(0);
 
   async function handleNew() {
@@ -33,6 +34,13 @@ export default function Home() {
     setActiveTranslationId(id);
   }
 
+  async function handleDelete(id: Id<"translations">) {
+    await removeMutation({ id });
+    if (activeTranslationId === id) {
+      setActiveTranslationId(null);
+    }
+  }
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -41,6 +49,7 @@ export default function Home() {
           selectedId={activeTranslationId}
           onSelect={handleSelect}
           onNew={handleNew}
+          onDelete={handleDelete}
         />
       </div>
 

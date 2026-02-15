@@ -142,6 +142,10 @@ The `translate` action (`convex/translate.ts`) tries providers in order: google 
 
 `ctx.runMutation` inside Convex actions is broken on self-hosted Convex (throws "Invalid URL"). The workaround is to return the translation result to the client, which then calls the mutation directly.
 
+## Planning
+
+When planning a feature or change, always produce a table of functions/components to **add**, **change**, or **remove** — with file paths, locations, and a short description of each change. This scopes the work upfront and prevents drift during implementation.
+
 ## Code style
 
 - TypeScript strict mode
